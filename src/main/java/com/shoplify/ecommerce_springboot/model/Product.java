@@ -31,7 +31,7 @@ public class Product extends BaseEntity {
     private int stock;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="category_id")
+    @JoinColumn(name = "category_id", nullable=false)
     private Category category;
 
     public long getId() {

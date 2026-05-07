@@ -5,6 +5,8 @@ import org.hibernate.annotations.SoftDelete;
 import org.hibernate.annotations.SoftDeleteType;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.util.List;
+
 @Entity
 @Table(name="categories")
 @EntityListeners(AuditingEntityListener.class)
@@ -17,6 +19,9 @@ public class Category extends BaseEntity {
 
     @Column
     private String name;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.DETACH)
+    private List<Product> products;
 
     public long getId() {
         return id;

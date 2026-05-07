@@ -19,6 +19,8 @@ public record ProductForm(
         Double price,
         @NotNull(message="Stocks is required")
         @Min(value = 0, message = "Stocks cannot be lower than 0")
-        Integer stock
+        Integer stock,
+        @NotNull(message = "Product Category is required")
+        Long category
 ) {
 }

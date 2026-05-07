@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/category")
+@RequestMapping("/api/categories")
+@CrossOrigin(origins = "http//localhost:5173")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -40,7 +41,7 @@ public class CategoryController {
         APIResponse<Category> response = new APIResponse<>(
                 HttpStatus.CREATED.value(),
                 true,
-                "Categories fetched Successfully",
+                "Category fetched Successfully",
                 newCategory
         );
 

@@ -1,6 +1,7 @@
 package com.shoplify.ecommerce_springboot.exception;
 
 import DTO.ErrorResponse;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -40,6 +41,19 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(error -> {
             errors.put(error.getField(), error.getDefaultMessage());
         });
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException (DataIntegrityViolationException ex) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                false,
+                ex.getMessage(),
+                System.currentTimeMillis()
+        );
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }

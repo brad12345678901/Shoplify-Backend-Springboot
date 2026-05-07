@@ -2,30 +2,37 @@ package com.shoplify.ecommerce_springboot.service.impl;
 
 import DTO.ProductForm;
 import com.shoplify.ecommerce_springboot.exception.ResourceNotFoundException;
+import com.shoplify.ecommerce_springboot.model.Category;
 import com.shoplify.ecommerce_springboot.model.Product;
+import com.shoplify.ecommerce_springboot.repository.CategoryRepository;
 import com.shoplify.ecommerce_springboot.repository.ProductRepository;
 import com.shoplify.ecommerce_springboot.service.ProductService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
 
-    ProductRepository db;
+    ProductRepository product_db;
+    CategoryRepository category_db;
 
-    public ProductServiceImpl(ProductRepository db) {
-        this.db = db;
+    public ProductServiceImpl(ProductRepository product_db, CategoryRepository category_db) {
+        this.product_db = product_db;
+        this.category_db = category_db;
     }
 
     public List<Product> findAllProducts() {
-        return db.findAll();
+        return product_db.findAll();
     }
 
     @Transactional
     public Product saveProduct(ProductForm dto) {
+        Category referenceCategory = category_db.findById(dto.category()).orElseThrow(() -> new ResourceNotFoundException("Category ID "+dto.category()+" was not found"));
+
         Product createdProduct = new Product();
 
         createdProduct.setName(dto.name());
@@ -33,12 +40,13 @@ public class ProductServiceImpl implements ProductService {
         createdProduct.setDescription(dto.description());
         createdProduct.setPrice(dto.price());
         createdProduct.setStock(dto.stock());
+        createdProduct.setCategory(referenceCategory);
 
-        return db.save(createdProduct);
+        return product_db.save(createdProduct);
     }
 
     public Product getProduct(long id) {
-        return db.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product with ID "+ id + " not found"));
+        return product_db.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product with ID "+ id + " not found"));
     }
 
     @Transactional
@@ -50,14 +58,14 @@ public class ProductServiceImpl implements ProductService {
         productToUpdate.setPrice(dto.price());
         productToUpdate.setStock(dto.stock());
 
-        return db.save(productToUpdate);
+        return product_db.save(productToUpdate);
     }
 
     @Transactional
     public Product deleteProduct(long id) {
         Product productToUpdate = this.getProduct(id);
 
-        db.delete(productToUpdate);
+        product_db.delete(productToUpdate);
 
         return productToUpdate;
     }
