@@ -1,4 +1,4 @@
-package DTO;
+package com.shoplify.ecommerce_springboot.DTO;
 
 import org.springframework.http.HttpStatus;
 
