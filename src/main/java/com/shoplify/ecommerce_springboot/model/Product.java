@@ -32,12 +32,26 @@ public class Product extends BaseEntity {
     @Column(nullable = false)
     private int stock;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", nullable=false)
     private Category category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.DETACH)
-    private List<ProductImages> productImages;
+    private List<ProductImage> productImages;
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", stock=" + stock +
+                ", category=" + category +
+                ", productImages=" + productImages +
+                '}';
+    }
 
     public long getId() {
         return id;

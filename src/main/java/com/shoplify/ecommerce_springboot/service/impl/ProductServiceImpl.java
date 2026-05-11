@@ -1,9 +1,10 @@
 package com.shoplify.ecommerce_springboot.service.impl;
 
-import DTO.ProductForm;
+import com.shoplify.ecommerce_springboot.DTO.ProductForm;
 import com.shoplify.ecommerce_springboot.exception.ResourceNotFoundException;
 import com.shoplify.ecommerce_springboot.model.Category;
 import com.shoplify.ecommerce_springboot.model.Product;
+import com.shoplify.ecommerce_springboot.model.ProductImage;
 import com.shoplify.ecommerce_springboot.repository.CategoryRepository;
 import com.shoplify.ecommerce_springboot.repository.ProductImageRepository;
 import com.shoplify.ecommerce_springboot.repository.ProductRepository;
@@ -11,23 +12,21 @@ import com.shoplify.ecommerce_springboot.service.FileService;
 import com.shoplify.ecommerce_springboot.service.ProductService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
 
     ProductRepository product_db;
-    ProductImageRepository productimage_db;
+    ProductImageRepository productImage_db;
     CategoryRepository category_db;
-    FileService fileService;
+    FileService<ProductImage, Product> fileService;
 
-    public ProductServiceImpl(ProductRepository product_db, CategoryRepository category_db, ProductImageRepository productimage_db, FileService fileService) {
+    public ProductServiceImpl(ProductRepository product_db, CategoryRepository category_db, ProductImageRepository productImage_db, FileService<ProductImage, Product> fileService) {
         this.product_db = product_db;
         this.category_db = category_db;
-        this.productimage_db = productimage_db;
+        this.productImage_db = productImage_db;
         this.fileService = fileService;
     }
 
@@ -38,12 +37,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public Product saveProduct(ProductForm dto) {
         Category referenceCategory = category_db.findById(dto.category()).orElseThrow(() -> new ResourceNotFoundException("Category ID "+dto.category()+" was not found"));
-
-        try {
-            String test = fileService.saveFile(dto.file());
-        } catch (Exception e) {
-            System.out.println("EXCEPTION");
-        }
+        ProductImage productImage;
 
         Product createdProduct = new Product();
 
@@ -54,7 +48,18 @@ public class ProductServiceImpl implements ProductService {
         createdProduct.setStock(dto.stock());
         createdProduct.setCategory(referenceCategory);
 
-        return product_db.save(createdProduct);
+        Product product = product_db.save(createdProduct);
+
+        if (!dto.file().isEmpty()) {
+            try {
+                productImage = fileService.saveFile(product, dto.file());
+                productImage_db.save(productImage);
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+
+        return product;
     }
 
     public Product getProduct(long id) {
